@@ -5,161 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gantt Chart Management Tool</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f4f4f4;
-        }
-        h1 {
-            text-align: center;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .dropdown {
-            margin: 20px 0;
-        }
-        .gantt {
-            position: relative;
-            padding: 20px;
-            overflow-x: auto;
-        }
-        .project-bar {
-            height: 30px;
-            margin: 5px 0;
-            position: relative;
-            border-radius: 4px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .milestone {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: yellow;
-            border: 2px solid white;
-        }
-        .tooltip {
-            position: absolute;
-            background: black;
-            color: white;
-            padding: 5px;
-            border-radius: 4px;
-            visibility: hidden;
-            z-index: 10;
-        }
-        .red-timeline {
-            position: absolute;
-            height: 4px;
-            background: red;
-            left: 0;
-            width: 100%;
-            top: 50%;
-            transform: translateY(-50%);
+        body { font-family: Arial, sans-serif; }
+        .gantt-chart { display: flex; }
+        .bar { height: 20px; margin: 2px; border-radius: 5px; }
+        @media (max-width: 600px) {
+            .gantt-chart { flex-direction: column; }
+            .bar { width: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Gantt Chart Management Tool</h1>
-        <div class="dropdown">
-            <select id="scientist-filter">
-                <option value="all">All</option>
-            </select>
-        </div>
-        <div class="gantt" id="gantt">
-            <div class="red-timeline"></div>
-        </div>
-        <div>
-            <button id="add-project">Add Project</button>
-        </div>
+    <h1>Gantt Chart Management Tool</h1>
+    <div id="project-manager">
+        <input type="text" id="project-name" placeholder="Project Name" />
+        <button id="add-project">Add Project</button>
     </div>
+    <div id="gantt"> </div>
+
     <script>
-        // JavaScript functionality
-        const projects = JSON.parse(localStorage.getItem('projects')) || [];
-        const scientists = new Set();
+        let projects = [];
 
         function renderProjects() {
-            const ganttEl = document.getElementById('gantt');
-            ganttEl.innerHTML = '<div class="red-timeline"></div>';  
+            const ganttDiv = document.getElementById('gantt');
+            ganttDiv.innerHTML = '';
             projects.forEach(project => {
-                const { name, scientist, startDate, endDate, milestones } = project;
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                const duration = end - start;
+                const color = '#' + Math.floor(Math.random()*16777215).toString(16);
                 const bar = document.createElement('div');
-                bar.className = 'project-bar';
-                bar.style.width = duration + 'px';
-                bar.style.background = getRandomColor();
-                bar.innerHTML = name;
-                ganttEl.appendChild(bar);
-
-                milestones.forEach(ms => {
-                    const milestoneDate = new Date(ms.date);
-                    const offset = milestoneDate - start;
-                    const milestone = document.createElement('div');
-                    milestone.className = 'milestone';
-                    milestone.style.left = offset + 'px';
-                    milestone.title = ms.name;
-                    ganttEl.appendChild(milestone);
-                });
-
-                scientists.add(scientist);
-            });
-            populateScientistFilter();
-        }
-
-        function populateScientistFilter() {
-            const filterEl = document.getElementById('scientist-filter');
-            scientists.forEach(scientist => {
-                const option = document.createElement('option');
-                option.value = scientist;
-                option.textContent = scientist;
-                filterEl.appendChild(option);
+                bar.className = 'bar';
+                bar.style.backgroundColor = color;
+                bar.style.width = project.duration + 'px'; // duration in pixels
+                ganttDiv.appendChild(bar);
             });
         }
 
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        document.getElementById('add-project').addEventListener('click', () => {
-            const name = prompt('Project Name:');
-            const scientist = prompt('Scientist Name:');
-            const startDate = prompt('Start Date (YYYY-MM-DD):');
-            const endDate = prompt('End Date (YYYY-MM-DD):');
-            const milestones = [];
-            let addMilestone = true;
-            while (addMilestone) {
-                const milestoneName = prompt('Milestone Name (or leave blank to finish):');
-                if (milestoneName) {
-                    const milestoneDate = prompt('Milestone Date (YYYY-MM-DD):');
-                    milestones.push({ name: milestoneName, date: milestoneDate });
-                } else {
-                    addMilestone = false;
-                }
-            }
-            const project = { name, scientist, startDate, endDate, milestones };
-            projects.push(project);
+        function addProject() {
+            const projectName = document.getElementById('project-name').value;
+            const duration = Math.floor(Math.random() * 300); // Example random duration
+            projects.push({ name: projectName, duration });
             localStorage.setItem('projects', JSON.stringify(projects));
             renderProjects();
-        });
+        }
 
-        renderProjects();
+        document.getElementById('add-project').addEventListener('click', addProject);
+
+        function loadProjects() {
+            const savedProjects = localStorage.getItem('projects');
+            if (savedProjects) {
+                projects = JSON.parse(savedProjects);
+                renderProjects();
+            }
+        }
+
+        loadProjects();
     </script>
 </body>
 </html>
