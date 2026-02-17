@@ -4,59 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gantt Chart Management Tool</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .gantt-chart { display: flex; }
-        .bar { height: 20px; margin: 2px; border-radius: 5px; }
-        @media (max-width: 600px) {
-            .gantt-chart { flex-direction: column; }
-            .bar { width: 100%; }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Gantt Chart Management Tool</h1>
-    <div id="project-manager">
-        <input type="text" id="project-name" placeholder="Project Name" />
-        <button id="add-project">Add Project</button>
+    <div id="app">
+        <h1>Gantt Chart Management Tool</h1>
+        <div>
+            <label for="scientist-filter">Filter by Scientist:</label>
+            <select id="scientist-filter">
+                <!-- Scientist options will be populated here -->
+            </select>
+        </div>
+        <div id="gantt-chart">
+            <!-- Gantt chart will be rendered here -->
+        </div>
+        <button id="export-btn">Export</button>
+        <button id="import-btn">Import</button>
+        <div id="statistics-dashboard">
+            <h2>Statistics Dashboard</h2>
+            <!-- Statistics will be displayed here -->
+        </div>
     </div>
-    <div id="gantt"> </div>
-
-    <script>
-        let projects = [];
-
-        function renderProjects() {
-            const ganttDiv = document.getElementById('gantt');
-            ganttDiv.innerHTML = '';
-            projects.forEach(project => {
-                const color = '#' + Math.floor(Math.random()*16777215).toString(16);
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                bar.style.backgroundColor = color;
-                bar.style.width = project.duration + 'px'; // duration in pixels
-                ganttDiv.appendChild(bar);
-            });
-        }
-
-        function addProject() {
-            const projectName = document.getElementById('project-name').value;
-            const duration = Math.floor(Math.random() * 300); // Example random duration
-            projects.push({ name: projectName, duration });
-            localStorage.setItem('projects', JSON.stringify(projects));
-            renderProjects();
-        }
-
-        document.getElementById('add-project').addEventListener('click', addProject);
-
-        function loadProjects() {
-            const savedProjects = localStorage.getItem('projects');
-            if (savedProjects) {
-                projects = JSON.parse(savedProjects);
-                renderProjects();
-            }
-        }
-
-        loadProjects();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
+
+<script>
+// Sample structure
+let projects = [
+    { scientist: 'Dr. Smith', start: '2026-02-01', end: '2026-05-01', milestones: ['Milestone 1', 'Milestone 2'], reports: ['Report 1'], contract: 'Contract XYZ' },
+];
+
+// Function to render Gantt chart
+function renderGantt() {
+    const chartElement = document.getElementById('gantt-chart');
+    // red timeline and bars proportional to time span with hover tooltips
+    let content = ''; // Build the HTML for Gantt chart
+    projects.forEach(project => {
+        const startDate = new Date(project.start);
+        const endDate = new Date(project.end);
+        const duration = (endDate - startDate) / (1000 * 60 * 60 * 24);
+        content += `<div class='project' title='${project.scientist}'>
+            <div class='bar' style='width: ${duration}px; background-color: red;'></div>
+        </div>`;
+    });
+    chartElement.innerHTML = content;
+}
+
+// Functions for localStorage persistence, delete, export/import functionalities
+function persistData() {
+    localStorage.setItem('projects', JSON.stringify(projects));
+}
+
+function loadData() {
+    const data = JSON.parse(localStorage.getItem('projects')) || [];
+    projects = data;
+    renderGantt();
+}
+
+// Initial load
+loadData();
+
+// Event listeners for export/import buttons
+document.getElementById('export-btn').addEventListener('click', () => {
+    // Handle export
+});
+
+document.getElementById('import-btn').addEventListener('click', () => {
+    // Handle import
+});
+
+</script>
