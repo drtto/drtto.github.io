@@ -3,59 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gantt Chart Management Tool</title>
+    <title>Gantt Chart Management</title>
     <style>
         body { font-family: Arial, sans-serif; }
-        #gantt { position: relative; overflow-x: scroll; }
-        .project { position: absolute; height: 20px; display: flex; align-items: center; }
-        .milestone { color: red; }
-        /* More styles for layout and color */
+        .timeline { position: relative; height: 50px; border-top: 2px solid red; }
+        .project-bar { position: absolute; height: 30px; color: white; text-align: center; }
+        select { margin: 10px; }
+        .scrollable { overflow-x: auto; white-space: nowrap; }
     </style>
 </head>
 <body>
-    <h1>Gantt Chart Management Tool</h1>
-    <div>
-        <label for="scientistFilter">Filter by Scientist:</label>
-        <select id="scientistFilter">
-            <!-- Scientist names will be populated here -->
-        </select>
+    <h1>Project Gantt Chart</h1>
+    <label for="scientistFilter">Filter by Scientist:</label>
+    <select id="scientistFilter">
+        <option value="all">All Scientists</option>
+        <option value="scientist1">Scientist 1</option>
+        <option value="scientist2">Scientist 2</option>
+        <option value="scientist3">Scientist 3</option>
+    </select>
+    <div class="scrollable">
+        <div class="timeline" id="timeline"></div>
+        <div id="projects"></div>
     </div>
-    <div id="gantt"></div>
     <script>
         const projects = [];
-        const scientists = [];
 
-        function addProject(name, startDate, endDate, contract = false) {
-            const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A6'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            projects.push({ name, startDate, endDate, contract, color });
-            localStorage.setItem('projects', JSON.stringify(projects));
-            drawGantt();
-        }
+        const addProject = (name, duration, color) => {
+            const project = { name, duration, color };
+            projects.push(project);
+            renderProjects();
+            saveToLocalStorage();
+        };
 
-        function drawGantt() {
-            const gantt = document.getElementById('gantt');
-            gantt.innerHTML = '';
+        const renderProjects = () => {
+            const projectsDiv = document.getElementById('projects');
+            projectsDiv.innerHTML = '';
             projects.forEach((project, index) => {
-                const start = new Date(project.startDate).getTime();
-                const end = new Date(project.endDate).getTime();
-                const width = (end - start) / (1000 * 60 * 60 * 24) * 20; // Adjust scale
-                const projectDiv = document.createElement('div');
-                projectDiv.className = 'project';
-                projectDiv.style.width = width + 'px';
-                projectDiv.style.backgroundColor = project.color;
-                projectDiv.style.left = (start - new Date().getTime()) / (1000 * 60 * 60 * 24) * 20 + 'px'; // Adjust left position
-                projectDiv.innerHTML = `<strong>${project.name}</strong>`;
-                gantt.appendChild(projectDiv);
+                const bar = document.createElement('div');
+                bar.className = 'project-bar';
+                bar.style.backgroundColor = project.color;
+                bar.style.width = project.duration + '%';
+                bar.style.left = (index * 10) + '%';  // Example positioning
+                bar.innerText = project.name;
+                projectsDiv.appendChild(bar);
             });
-        }
+        };
 
-        function loadProjects() {
-            const storedProjects = JSON.parse(localStorage.getItem('projects')) || [];
-            storedProjects.forEach(p => addProject(p.name, p.startDate, p.endDate, p.contract));
-        }
+        const saveToLocalStorage = () => {
+            localStorage.setItem('projects', JSON.stringify(projects));
+        };
 
-        loadProjects();
+        const loadFromLocalStorage = () => {
+            const storedProjects = localStorage.getItem('projects');
+            if (storedProjects) {
+                JSON.parse(storedProjects).forEach(project => addProject(project.name, project.duration, project.color));
+            }
+        };
+
+        document.getElementById('scientistFilter').addEventListener('change', (event) => {
+            // Implement filtering logic here
+        });
+
+        loadFromLocalStorage();
+        // Example of adding project with random color
+        addProject('Project A', 30, 'rgb(' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')');
     </script>
 </body>
 </html>
