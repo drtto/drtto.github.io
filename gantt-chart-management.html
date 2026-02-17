@@ -4,72 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gantt Chart Management</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-        .gantt {
-            position: relative;
-        }
-        .timeline {
-            display: flex;
-            flex-direction: row;
-            position: relative;
-            background-color: red;
-            height: 50px;
-        }
-        .project, .milestone {
-            background-color: #f1f1f1;
-            margin: 5px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        @media (max-width: 600px) {
-            .gantt {
-                flex-direction: column;
-            }
-        }
+        body { font-family: Arial, sans-serif; }
+        #ganttChart { width: 100%; height: 400px; position: relative; }
+        .task { position: absolute; height: 30px; background-color: red; color: white; text-align: center; }
+        .milestone { background-color: blue; }
+        #statistics { margin-top: 20px; }
     </style>
 </head>
 <body>
-<header>
     <h1>Gantt Chart Management</h1>
-    <div>
-        <input type="text" id="filter" placeholder="Filter...">
-        <button id="export-btn">Export</button>
-        <button id="import-btn">Import</button>
+    <div id="ganttChart"></div>
+    <div id="controls">
+        <button onclick="exportData()">Export</button>
+        <button onclick="importData()">Import</button>
     </div>
-</header>
-<div class="gantt">
-    <div class="timeline">
-        <!-- Red timeline representation -->
-    </div>
-    <div id="projects">
-        <!-- Dynamic project display -->
-    </div>
-</div>
-<script>
-    // JavaScript for dynamic functions, localStorage, filtering, exporting and importing
-    document.getElementById('export-btn').addEventListener('click', function() {
-        // Logic for exporting data
-        alert('Export functionality to be implemented.');
-    });
-    document.getElementById('import-btn').addEventListener('click', function() {
-        // Logic for importing data
-        alert('Import functionality to be implemented.');
-    });
-    // Other dynamic functionalities for managing projects, scientists, milestones, etc.
-</script>
+    <div id="statistics"></div>
+
+    <script>
+        const tasks = [];
+
+        function addTask(name, start, duration) {
+            tasks.push({ name, start, duration });
+            drawGanttChart();
+            saveToLocalStorage();
+        }
+
+        function drawGanttChart() {
+            const ganttChart = document.getElementById('ganttChart');
+            ganttChart.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task';
+                taskDiv.style.left = `${task.start}px`;
+                taskDiv.style.width = `${task.duration}px`;
+                taskDiv.innerText = task.name;
+                ganttChart.appendChild(taskDiv);
+            });
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('ganttTasks', JSON.stringify(tasks));
+        }
+
+        function loadFromLocalStorage() {
+            const savedTasks = JSON.parse(localStorage.getItem('ganttTasks')) || [];
+            savedTasks.forEach(task => addTask(task.name, task.start, task.duration));
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(tasks);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tasks.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            fileInput.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const importedTasks = JSON.parse(e.target.result);
+                    importedTasks.forEach(task => addTask(task.name, task.start, task.duration));
+                };
+                reader.readAsText(file);
+            };
+            fileInput.click();
+        }
+
+        loadFromLocalStorage();
+    </script>
 </body>
 </html>
