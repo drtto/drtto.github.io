@@ -3,75 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gantt Chart Management Tool</title>
+    <title>Gantt Chart Management</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .gantt {
+            position: relative;
+        }
+        .timeline {
+            display: flex;
+            flex-direction: row;
+            position: relative;
+            background-color: red;
+            height: 50px;
+        }
+        .project, .milestone {
+            background-color: #f1f1f1;
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        @media (max-width: 600px) {
+            .gantt {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <h1>Gantt Chart Management Tool</h1>
-        <div>
-            <label for="scientist-filter">Filter by Scientist:</label>
-            <select id="scientist-filter">
-                <!-- Scientist options will be populated here -->
-            </select>
-        </div>
-        <div id="gantt-chart">
-            <!-- Gantt chart will be rendered here -->
-        </div>
+<header>
+    <h1>Gantt Chart Management</h1>
+    <div>
+        <input type="text" id="filter" placeholder="Filter...">
         <button id="export-btn">Export</button>
         <button id="import-btn">Import</button>
-        <div id="statistics-dashboard">
-            <h2>Statistics Dashboard</h2>
-            <!-- Statistics will be displayed here -->
-        </div>
     </div>
-    <script src="script.js"></script>
+</header>
+<div class="gantt">
+    <div class="timeline">
+        <!-- Red timeline representation -->
+    </div>
+    <div id="projects">
+        <!-- Dynamic project display -->
+    </div>
+</div>
+<script>
+    // JavaScript for dynamic functions, localStorage, filtering, exporting and importing
+    document.getElementById('export-btn').addEventListener('click', function() {
+        // Logic for exporting data
+        alert('Export functionality to be implemented.');
+    });
+    document.getElementById('import-btn').addEventListener('click', function() {
+        // Logic for importing data
+        alert('Import functionality to be implemented.');
+    });
+    // Other dynamic functionalities for managing projects, scientists, milestones, etc.
+</script>
 </body>
 </html>
-
-<script>
-// Sample structure
-let projects = [
-    { scientist: 'Dr. Smith', start: '2026-02-01', end: '2026-05-01', milestones: ['Milestone 1', 'Milestone 2'], reports: ['Report 1'], contract: 'Contract XYZ' },
-];
-
-// Function to render Gantt chart
-function renderGantt() {
-    const chartElement = document.getElementById('gantt-chart');
-    // red timeline and bars proportional to time span with hover tooltips
-    let content = ''; // Build the HTML for Gantt chart
-    projects.forEach(project => {
-        const startDate = new Date(project.start);
-        const endDate = new Date(project.end);
-        const duration = (endDate - startDate) / (1000 * 60 * 60 * 24);
-        content += `<div class='project' title='${project.scientist}'>
-            <div class='bar' style='width: ${duration}px; background-color: red;'></div>
-        </div>`;
-    });
-    chartElement.innerHTML = content;
-}
-
-// Functions for localStorage persistence, delete, export/import functionalities
-function persistData() {
-    localStorage.setItem('projects', JSON.stringify(projects));
-}
-
-function loadData() {
-    const data = JSON.parse(localStorage.getItem('projects')) || [];
-    projects = data;
-    renderGantt();
-}
-
-// Initial load
-loadData();
-
-// Event listeners for export/import buttons
-document.getElementById('export-btn').addEventListener('click', () => {
-    // Handle export
-});
-
-document.getElementById('import-btn').addEventListener('click', () => {
-    // Handle import
-});
-
-</script>
