@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gantt Chart Management Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #gantt { position: relative; overflow-x: scroll; }
+        .project { position: absolute; height: 20px; display: flex; align-items: center; }
+        .milestone { color: red; }
+        /* More styles for layout and color */
+    </style>
+</head>
+<body>
+    <h1>Gantt Chart Management Tool</h1>
+    <div>
+        <label for="scientistFilter">Filter by Scientist:</label>
+        <select id="scientistFilter">
+            <!-- Scientist names will be populated here -->
+        </select>
+    </div>
+    <div id="gantt"></div>
+    <script>
+        const projects = [];
+        const scientists = [];
+
+        function addProject(name, startDate, endDate, contract = false) {
+            const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A6'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            projects.push({ name, startDate, endDate, contract, color });
+            localStorage.setItem('projects', JSON.stringify(projects));
+            drawGantt();
+        }
+
+        function drawGantt() {
+            const gantt = document.getElementById('gantt');
+            gantt.innerHTML = '';
+            projects.forEach((project, index) => {
+                const start = new Date(project.startDate).getTime();
+                const end = new Date(project.endDate).getTime();
+                const width = (end - start) / (1000 * 60 * 60 * 24) * 20; // Adjust scale
+                const projectDiv = document.createElement('div');
+                projectDiv.className = 'project';
+                projectDiv.style.width = width + 'px';
+                projectDiv.style.backgroundColor = project.color;
+                projectDiv.style.left = (start - new Date().getTime()) / (1000 * 60 * 60 * 24) * 20 + 'px'; // Adjust left position
+                projectDiv.innerHTML = `<strong>${project.name}</strong>`;
+                gantt.appendChild(projectDiv);
+            });
+        }
+
+        function loadProjects() {
+            const storedProjects = JSON.parse(localStorage.getItem('projects')) || [];
+            storedProjects.forEach(p => addProject(p.name, p.startDate, p.endDate, p.contract));
+        }
+
+        loadProjects();
+    </script>
+</body>
+</html>
